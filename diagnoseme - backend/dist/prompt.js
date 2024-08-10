@@ -18,7 +18,7 @@ var __asyncValues = (this && this.__asyncValues) || function (o) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.main = void 0;
 const Groq = require('groq-sdk');
-const groq = new Groq({ apiKey: "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" });
+const groq = new Groq({ apiKey: "" });
 function main() {
     var _a, e_1, _b, _c;
     var _d, _e;
