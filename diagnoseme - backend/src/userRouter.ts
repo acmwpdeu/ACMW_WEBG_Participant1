@@ -1,16 +1,13 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
-import { signupTypes } from './types';
+import { loginTypes, signupTypes } from './types';
 import {User} from './schema';
-import mongoose from 'mongoose';
-
 export const userRouter = express();
 
 //add encryption to password
 
-userRouter.post("/", async(req,res) => {
+userRouter.post("/aignup", async(req,res) => {
     
-    await mongoose.connect("mongodb+srv://harwanidev:pwdispwd@cluster0.1xhcqfs.mongodb.net/DiagnoseMe")
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const email = req.body.email;
@@ -40,8 +37,31 @@ userRouter.post("/", async(req,res) => {
     
     return res.status(200).json({
         message: "new user registered successfully",
-        token: jwt.sign(email, "SecretKey")
-    })    
-})
+        token: jwt.sign(email, process.env.JWT_SECRET as string)
+    });    
+});
 
+userRouter.post("/login", async(req,res) => {
+    const {email, password} = req.body;
+    
+    const parsedInput = loginTypes.safeParse({email, password});
+    if(!parsedInput.success){
+        var issues: string[] = [];
+        parsedInput.error.issues.map((issue) => {
+            issues.push(issue.message);
+        })
+        return res.status(404).json({
+            message: issues
+        });
+    }
 
+    const findUser = await User.findOne({email:parsedInput.data.email, password: parsedInput.data.password});
+    if(!findUser){
+        return res.status(411).json({
+            message: "No user found with given credentials"
+        })
+    }
+    return res.status(200).json({
+        token: jwt.sign(parsedInput.data.email, process.env.JWT_SECRET as string)
+    });
+});

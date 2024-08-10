@@ -17,11 +17,9 @@ const express_1 = __importDefault(require("express"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const types_1 = require("./types");
 const schema_1 = require("./schema");
-const mongoose_1 = __importDefault(require("mongoose"));
 exports.userRouter = (0, express_1.default)();
 //add encryption to password
-exports.userRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    yield mongoose_1.default.connect("mongodb+srv://harwanidev:pwdispwd@cluster0.1xhcqfs.mongodb.net/DiagnoseMe");
+exports.userRouter.post("/aignup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const email = req.body.email;
@@ -46,6 +44,28 @@ exports.userRouter.post("/", (req, res) => __awaiter(void 0, void 0, void 0, fun
     yield newUser.save();
     return res.status(200).json({
         message: "new user registered successfully",
-        token: jsonwebtoken_1.default.sign(email, "SecretKey")
+        token: jsonwebtoken_1.default.sign(email, process.env.JWT_SECRET)
+    });
+}));
+exports.userRouter.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    const parsedInput = types_1.loginTypes.safeParse({ email, password });
+    if (!parsedInput.success) {
+        var issues = [];
+        parsedInput.error.issues.map((issue) => {
+            issues.push(issue.message);
+        });
+        return res.status(404).json({
+            message: issues
+        });
+    }
+    const findUser = yield schema_1.User.findOne({ email: parsedInput.data.email, password: parsedInput.data.password });
+    if (!findUser) {
+        return res.status(411).json({
+            message: "No user found with given credentials"
+        });
+    }
+    return res.status(200).json({
+        token: jsonwebtoken_1.default.sign(parsedInput.data.email, process.env.JWT_SECRET)
     });
 }));

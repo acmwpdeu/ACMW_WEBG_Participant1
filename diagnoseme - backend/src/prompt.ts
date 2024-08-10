@@ -12,6 +12,10 @@ export async function main() {
       {
         "role": "assistant",
         "content": "I'm ready to see the patient. Please go ahead and describe your symptoms and medical history. What brings you to see me today?"
+      },
+      {
+        "role": "patient",
+        "content": ""
       }
     ],
     "model": "llama3-70b-8192",
@@ -26,4 +30,3 @@ export async function main() {
     console.log(chunk.choices[0]?.delta?.content || '');
   }
 }
-main();
