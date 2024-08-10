@@ -8,7 +8,8 @@ export const userRouter = express();
 //add encryption to password
 
 userRouter.post("/signup", async(req,res) => {
-    const {firstName, lastName, email, password} = req.body;
+    try {
+        const {firstName, lastName, email, password} = req.body;
     const parsedInput = signupTypes.safeParse({firstName, lastName, email, password});
 
     if(!parsedInput.success){
@@ -26,8 +27,14 @@ userRouter.post("/signup", async(req,res) => {
 
     const newUser = new User({firstName: parsedInput.data.firstName, lastName: parsedInput.data.lastName, email: parsedInput.data.email, password: parsedInput.data.password});
     await newUser.save();
-    
+    const token = jwt.sign(email, "SecretKey")
     return res.status(200).json({
         message: "new user registered successfully"
     })
+    } catch (error) {
+      return res.status(200).json({
+        message: error
+      })  
+    }
+    
 })
