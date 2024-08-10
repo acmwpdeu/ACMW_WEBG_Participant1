@@ -8,22 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __asyncValues = (this && this.__asyncValues) || function (o) {
-    if (!Symbol.asyncIterator) throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function () { return this; }, i);
-    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }
-    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.main = void 0;
+exports.main = exports.groq = void 0;
 const Groq = require('groq-sdk');
-const groq = new Groq({ apiKey: "" });
+const dotenv_1 = __importDefault(require("dotenv"));
+dotenv_1.default.config();
+const key = process.env.API_KEY;
+exports.groq = new Groq({ apiKey: key });
 function main() {
-    var _a, e_1, _b, _c;
-    var _d, _e;
     return __awaiter(this, void 0, void 0, function* () {
-        const chatCompletion = yield groq.chat.completions.create({
+        const chatCompletion = yield exports.groq.chat.completions.create({
             "messages": [
                 {
                     "role": "system",
@@ -32,6 +29,10 @@ function main() {
                 {
                     "role": "assistant",
                     "content": "I'm ready to see the patient. Please go ahead and describe your symptoms and medical history. What brings you to see me today?"
+                },
+                {
+                    "role": "user",
+                    "content": "i have cough"
                 }
             ],
             "model": "llama3-70b-8192",
@@ -41,21 +42,6 @@ function main() {
             "stream": true,
             "stop": null
         });
-        try {
-            for (var _f = true, chatCompletion_1 = __asyncValues(chatCompletion), chatCompletion_1_1; chatCompletion_1_1 = yield chatCompletion_1.next(), _a = chatCompletion_1_1.done, !_a; _f = true) {
-                _c = chatCompletion_1_1.value;
-                _f = false;
-                const chunk = _c;
-                console.log(((_e = (_d = chunk.choices[0]) === null || _d === void 0 ? void 0 : _d.delta) === null || _e === void 0 ? void 0 : _e.content) || '');
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (!_f && !_a && (_b = chatCompletion_1.return)) yield _b.call(chatCompletion_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
     });
 }
 exports.main = main;

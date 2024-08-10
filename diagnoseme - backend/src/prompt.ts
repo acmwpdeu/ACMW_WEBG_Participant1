@@ -1,6 +1,8 @@
 const Groq = require('groq-sdk');
-
-const groq = new Groq({apiKey: ""});
+import dotenv from 'dotenv';
+dotenv.config()
+const key = process.env.API_KEY;
+export const groq = new Groq({apiKey: key});
 export async function main() {
   
   const chatCompletion = await groq.chat.completions.create({
@@ -14,8 +16,8 @@ export async function main() {
         "content": "I'm ready to see the patient. Please go ahead and describe your symptoms and medical history. What brings you to see me today?"
       },
       {
-        "role": "patient",
-        "content": ""
+        "role": "user",
+        "content": "i have cough"
       }
     ],
     "model": "llama3-70b-8192",
@@ -26,7 +28,6 @@ export async function main() {
     "stop": null
   });
 
-  for await (const chunk of chatCompletion) {
-    console.log(chunk.choices[0]?.delta?.content || '');
-  }
+  
 }
+main();

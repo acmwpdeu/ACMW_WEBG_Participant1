@@ -16,10 +16,12 @@ const express_1 = __importDefault(require("express"));
 const userRouter_1 = require("./userRouter");
 const mongoose_1 = __importDefault(require("mongoose"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const chatRouter_1 = require("./chatRouter");
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use("/user", userRouter_1.userRouter);
+app.use("/chat", chatRouter_1.chatRouter);
 app.listen(3000, () => __awaiter(void 0, void 0, void 0, function* () {
     yield mongoose_1.default.connect(process.env.MONGO_URL);
     console.log('listening');
