@@ -19,7 +19,7 @@ const types_1 = require("./types");
 const schema_1 = require("./schema");
 exports.userRouter = (0, express_1.default)();
 //add encryption to password
-exports.userRouter.post("/aignup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.userRouter.post("/signup", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const email = req.body.email;
@@ -44,7 +44,7 @@ exports.userRouter.post("/aignup", (req, res) => __awaiter(void 0, void 0, void 
     yield newUser.save();
     return res.status(200).json({
         message: "new user registered successfully",
-        token: jsonwebtoken_1.default.sign(email, process.env.JWT_SECRET)
+        token: jsonwebtoken_1.default.sign(parsedInput.data.email, process.env.JWT_SECRET)
     });
 }));
 exports.userRouter.post("/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {

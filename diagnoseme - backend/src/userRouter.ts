@@ -1,12 +1,12 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
 import { loginTypes, signupTypes } from './types';
-import {User} from './schema';
+import {Chat, User} from './schema';
 export const userRouter = express();
 
 //add encryption to password
 
-userRouter.post("/aignup", async(req,res) => {
+userRouter.post("/signup", async(req,res) => {
     
     const firstName = req.body.firstName;
     const lastName = req.body.lastName;
@@ -37,7 +37,7 @@ userRouter.post("/aignup", async(req,res) => {
     
     return res.status(200).json({
         message: "new user registered successfully",
-        token: jwt.sign(email, process.env.JWT_SECRET as string)
+        token: jwt.sign(parsedInput.data.email, process.env.JWT_SECRET as string)
     });    
 });
 

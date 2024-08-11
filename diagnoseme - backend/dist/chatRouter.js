@@ -21,27 +21,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.chatRouter = void 0;
 const express_1 = __importDefault(require("express"));
+const schema_1 = require("./schema");
 const prompt_1 = require("./prompt");
+const middleware_1 = require("./middleware");
 exports.chatRouter = (0, express_1.default)();
-const boilerplate = [{
-        "role": "system",
-        "content": "\"You are a doctor tasked with diagnosing patient conditions based on their symptoms and medical history. Carefully listen to the patient's description of their symptoms, consider possible conditions, and provide a diagnosis. If the condition appears serious or life-threatening, strongly advise the patient to seek immediate medical attention.\""
-    },
-    {
-        "role": "assistant",
-        "content": "I'm ready to see the patient. Please go ahead and describe your symptoms and medical history. What brings you to see me today?"
-    }];
-const chat = boilerplate;
-exports.chatRouter.post("/send", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.chatRouter.post("/newchat", middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const email = req.headers['email'];
+    const user = yield schema_1.User.findOne({ email: email });
+    const newChat = new schema_1.Chat({ sender: user === null || user === void 0 ? void 0 : user._id });
+    yield newChat.save();
+    user === null || user === void 0 ? void 0 : user.chats.push(newChat._id);
+    yield (user === null || user === void 0 ? void 0 : user.save());
+    return res.status(200).json({
+        id: newChat._id
+    });
+}));
+exports.chatRouter.post("/send", middleware_1.Middleware, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, e_1, _b, _c;
-    var _d, _e, _f, _g;
+    var _d, _e;
     const { message } = req.body;
-    chat.push({
+    const chatId = req.query.id;
+    const chat = yield schema_1.Chat.findById({ _id: chatId });
+    console.log(chat === null || chat === void 0 ? void 0 : chat.messages);
+    chat === null || chat === void 0 ? void 0 : chat.messages.push({
         "role": "user",
         "content": message
     });
     const chatCompletion = yield prompt_1.groq.chat.completions.create({
-        "messages": chat,
+        "messages": chat === null || chat === void 0 ? void 0 : chat.messages,
         "model": "llama3-70b-8192",
         "temperature": 1,
         "max_tokens": 1024,
@@ -51,27 +58,28 @@ exports.chatRouter.post("/send", (req, res) => __awaiter(void 0, void 0, void 0,
     });
     var ans = [];
     try {
-        for (var _h = true, chatCompletion_1 = __asyncValues(chatCompletion), chatCompletion_1_1; chatCompletion_1_1 = yield chatCompletion_1.next(), _a = chatCompletion_1_1.done, !_a; _h = true) {
+        for (var _f = true, chatCompletion_1 = __asyncValues(chatCompletion), chatCompletion_1_1; chatCompletion_1_1 = yield chatCompletion_1.next(), _a = chatCompletion_1_1.done, !_a; _f = true) {
             _c = chatCompletion_1_1.value;
-            _h = false;
+            _f = false;
             const chunk = _c;
             ans.push(((_e = (_d = chunk.choices[0]) === null || _d === void 0 ? void 0 : _d.delta) === null || _e === void 0 ? void 0 : _e.content) || '');
-            chat.push({
-                "role": "assistant",
-                content: ((_g = (_f = chunk.choices[0]) === null || _f === void 0 ? void 0 : _f.delta) === null || _g === void 0 ? void 0 : _g.content) || ''
-            });
         }
     }
     catch (e_1_1) { e_1 = { error: e_1_1 }; }
     finally {
         try {
-            if (!_h && !_a && (_b = chatCompletion_1.return)) yield _b.call(chatCompletion_1);
+            if (!_f && !_a && (_b = chatCompletion_1.return)) yield _b.call(chatCompletion_1);
         }
         finally { if (e_1) throw e_1.error; }
     }
-    console.log(ans.join(","));
-    //   console.log(chat);
-    //   return res.status(200).json({
-    //     message: chatCompletion.choices[0]?.delta?.content || ''
-    //   })
+    var readableAns = ans.join("");
+    chat === null || chat === void 0 ? void 0 : chat.messages.push({
+        "role": "assistant",
+        content: readableAns
+    });
+    console.log(readableAns);
+    yield (chat === null || chat === void 0 ? void 0 : chat.save());
+    return res.status(200).json({
+        messge: "done"
+    });
 }));

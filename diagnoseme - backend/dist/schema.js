@@ -65,21 +65,28 @@ const userSchema = new mongoose_1.Schema({
 });
 // Define the Chat schema
 const chatSchema = new mongoose_1.Schema({
-    messages: [{
-            sender: {
-                type: mongoose_1.Schema.Types.ObjectId,
-                ref: 'User',
-                required: true
+    sender: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true,
+        unique: false
+    },
+    messages: {
+        type: [{
+                role: String,
+                content: String,
+                _id: false
+            }],
+        required: true,
+        default: [{
+                "role": "system",
+                "content": "\"You are a doctor tasked with diagnosing patient conditions based on their symptoms and medical history. Carefully listen to the patient's description of their symptoms, consider possible conditions, and provide a diagnosis. If the condition appears serious or life-threatening, strongly advise the patient to seek immediate medical attention.\""
             },
-            text: {
-                type: String,
-                required: true
-            },
-            timestamp: {
-                type: Date,
-                default: Date.now
-            }
-        }],
+            {
+                "role": "assistant",
+                "content": "I'm ready to see the patient. Please go ahead and describe your symptoms and medical history. What brings you to see me today?"
+            }] // Initialize with the boilerplate message
+    },
     createdAt: {
         type: Date,
         default: Date.now

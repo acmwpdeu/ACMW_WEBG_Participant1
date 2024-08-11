@@ -41,34 +41,39 @@ const userSchema = new Schema({
 
 // Define the Chat schema
 const chatSchema = new Schema({
-    messages: [{
-      sender: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-      },
-      text: {
-        type: String,
-        required: true
-      },
-      timestamp: {
-        type: Date,
-        default: Date.now
-      }
-    }],
-    createdAt: {
-      type: Date,
-      default: Date.now
+  sender: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique:false
+  },
+  messages: {
+    type: [{
+      role: String,
+      content: String,
+      _id: false
+    }],  
+    required: true,
+    default: [{
+      "role": "system",
+      "content": "\"You are a doctor tasked with diagnosing patient conditions based on their symptoms and medical history. Carefully listen to the patient's description of their symptoms, consider possible conditions, and provide a diagnosis. If the condition appears serious or life-threatening, strongly advise the patient to seek immediate medical attention.\""
     },
-    updatedAt: {
-      type: Date,
-      default: Date.now
-    }
-  }, {
-    timestamps: true  // Automatically add `createdAt` and `updatedAt` fields
-  });
-  
-
+    {
+      "role": "assistant",
+      "content": "I'm ready to see the patient. Please go ahead and describe your symptoms and medical history. What brings you to see me today?"
+    }]  // Initialize with the boilerplate message
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
+  }
+}, {
+  timestamps: true  // Automatically add `createdAt` and `updatedAt` fields
+});
 // Create a model using the schema
 export const User = mongoose.model('User', userSchema);
 export const Chat = mongoose.model('Chat', chatSchema);
